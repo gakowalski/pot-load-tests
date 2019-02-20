@@ -21,7 +21,7 @@ class PrzegladanieOfert extends Simulation {
   	.pause(1, 10)
   	.exec(http("Regulamin").get("/REGULAMIN-wiosna-2019.pdf").check(status.not(404)))
   	.pause(1, 20)
-  	.exec(http("Sprawdź oferty").get("/lista-obiektow").check(status.not(404)))
+  	.exec(http("Sprawdz oferty").get("/lista-obiektow").check(status.not(404)))
   	.pause(3, 15)
   	.exec(http("Filtruj").get("/lista-obiektow?s=&r={randomRegion()}&m=").check(css("div.ob-list h3 > a", "href").saveAs("oferta")))
   	.pause(3, 10)
