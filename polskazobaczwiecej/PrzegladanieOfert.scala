@@ -24,7 +24,7 @@ class PrzegladanieOfert extends Simulation {
       .check(
         status.not(404),
         css("option+option", "value").findAll.saveAs("wojewodztwa"),
-        css("input[name='c[]']").findAll.saveAs("uslugi")
+        css("input[name='c[]']", "value").findAll.saveAs("uslugi")
       )
     )
   	.pause(15, 30)
@@ -48,7 +48,7 @@ class PrzegladanieOfert extends Simulation {
         exec(http("Filtruj (woj.)").get("/lista-obiektow?s=&r=${wojewodztwa.random()}&m=")
           .check(
             css("div.ob-list h3 > a", "href").findAll.saveAs("oferta_1"),
-            css("input[name='c[]']").findAll.saveAs("uslugi")
+            css("input[name='c[]']", "value").findAll.saveAs("uslugi")
           )
         )
       }
