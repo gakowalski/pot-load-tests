@@ -11,8 +11,6 @@ class PrzegladanieOfert extends Simulation {
     .doNotTrackHeader("1")
   	.acceptEncodingHeader("gzip, deflate")
 
-  val random = new Random(System.currentTimeMillis())
-
   val czytajRegulamin = exec(http("Regulamin").get("/REGULAMIN-wiosna-2019.pdf").check(status.not(404))).pause(1, 20)
   var czytajInformacje = exec(http("Informacje").get("/informacje").check(status.not(404))).pause(1, 10)
 
@@ -32,9 +30,13 @@ class PrzegladanieOfert extends Simulation {
   	.pause(15, 30)
   	.exec(http("Sprawdz oferty (str. 2)").get("/lista-obiektow/strona-2").check(status.not(404)))
   	.pause(15, 30)
-  	.exec(http("Filtruj (woj.)").get("/lista-obiektow?s=&r=${wojewodztwa.random()}&m=").check(css("div.ob-list h3 > a", "href").find(randomOffer()).saveAs("oferta_1")))
+  	.exec(http("Filtruj (woj.)").get("/lista-obiektow?s=&r=${wojewodztwa.random()}&m=")
+      .check(css("div.ob-list h3 > a", "href")
+      .findAll
+      .saveAs("oferta_1"))
+    )
   	.pause(5, 15)
-  	.exec(http("Szczegoly oferty #1").get("${oferta_1}"))
+  	.exec(http("Szczegoly oferty #1").get("${oferta_1.random()}"))
   	.pause(15, 45)
     .exec(http("Filtruj (woj. + usluga)").get("/lista-obiektow")
       .queryParam("s", "")
