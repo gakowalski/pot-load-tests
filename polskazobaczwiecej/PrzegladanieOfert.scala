@@ -28,26 +28,50 @@ class PrzegladanieOfert extends Simulation {
       )
     )
   	.pause(15, 30)
-  	.exec(http("Sprawdz oferty (str. 2)").get("/lista-obiektow/strona-2").check(status.not(404)))
+    .doIfOrElse("${wojewodztwa.exists()}") {
+      exec(http("Sprawdz oferty (str. 2)").get("/lista-obiektow/strona-2").check(
+        status.not(404)
+      ))
+    } {
+      exec(http("Sprawdz oferty (str. 2)").get("/lista-obiektow/strona-2").check(
+        status.not(404),
+        css("option+option", "value").findAll.saveAs("wojewodztwa")
+      ))
+    }
   	.pause(15, 30)
-  	.exec(http("Filtruj (woj.)").get("/lista-obiektow?s=&r=${wojewodztwa.random()}&m=")
-      .check(css("div.ob-list h3 > a", "href")
-      .findAll
-      .saveAs("oferta_1"))
-    )
-  	.pause(5, 15)
-  	.exec(http("Szczegoly oferty #1").get("${oferta_1.random()}"))
-  	.pause(15, 45)
-    .exec(http("Filtruj (woj. + usluga)").get("/lista-obiektow")
-      .queryParam("s", "")
-      .queryParam("r", "${wojewodztwa.random()}")
-      .queryParam("m", "")
-      .queryParam("c[]", "${uslugi.random()}")
-      .check(css("div.ob-list h3 > a", "href")
-      .findAll
-      .optional
-      .saveAs("oferty"))
-    )
+    .doIf("${wojewodztwa.exists()}") {
+      doIfOrElse("${uslugi.exists()}") {
+        exec(http("Filtruj (woj.)").get("/lista-obiektow?s=&r=${wojewodztwa.random()}&m=")
+          .check(css("div.ob-list h3 > a", "href").findAll.saveAs("oferta_1"))
+        )
+      } {
+        exec(http("Filtruj (woj.)").get("/lista-obiektow?s=&r=${wojewodztwa.random()}&m=")
+          .check(
+            css("div.ob-list h3 > a", "href").findAll.saveAs("oferta_1"),
+            css("input[name='c[]']").findAll.saveAs("uslugi")
+          )
+        )
+      }
+      .pause(5, 15)
+    }
+    .doIf("${oferta_1.exists()}") {
+      exec(http("Szczegoly oferty #1").get("${oferta_1.random()}"))
+      .pause(15, 45)
+    }
+    .doIf("${wojewodztwa.exists()}") {
+      doIf("${uslugi.exists()}") {
+        exec(http("Filtruj (woj. + usluga)").get("/lista-obiektow")
+          .queryParam("s", "")
+          .queryParam("r", "${wojewodztwa.random()}")
+          .queryParam("m", "")
+          .queryParam("c[]", "${uslugi.random()}")
+          .check(css("div.ob-list h3 > a", "href")
+          .findAll
+          .optional
+          .saveAs("oferty"))
+        )
+      }
+    }
   	.pause(5, 15)
     .doIf("${oferty.exists()}") {
       exec(http("Szczegoly oferty #2").get("${oferty.random()}"))
