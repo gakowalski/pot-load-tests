@@ -10,6 +10,11 @@ class PrzegladanieOfert extends Simulation {
     .baseUrl("https://polskazobaczwiecej.pl")
     .doNotTrackHeader("1")
   	.acceptEncodingHeader("gzip, deflate")
+    .inferHtmlResources(BlackList(
+      "https://www.google.com/.*",
+      "https://fonts.googleapis.com/.*",
+      "https://www.googletagmanager.com/.*"
+    ))
 
   val czytajRegulamin = exec(http("Regulamin").get("/REGULAMIN-wiosna-2019.pdf").check(status.not(404))).pause(1, 20)
   var czytajInformacje = exec(http("Informacje").get("/informacje").check(status.not(404))).pause(1, 10)
