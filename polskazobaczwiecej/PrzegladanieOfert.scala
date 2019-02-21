@@ -3,8 +3,6 @@ package polskazobaczwiecej
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
-import scala.util.Random
-import java.lang.System
 
 class PrzegladanieOfert extends Simulation {
 
@@ -14,9 +12,6 @@ class PrzegladanieOfert extends Simulation {
   	.acceptEncodingHeader("gzip, deflate")
 
   val random = new Random(System.currentTimeMillis())
-
-  def randomService() = random.nextInt(9) + 1
-  def randomInt(min : Int, max : Int) = random.nextInt(max - min) + min
 
   val czytajRegulamin = exec(http("Regulamin").get("/REGULAMIN-wiosna-2019.pdf").check(status.not(404))).pause(1, 20)
   var czytajInformacje = exec(http("Informacje").get("/informacje").check(status.not(404))).pause(1, 10)
@@ -30,7 +25,8 @@ class PrzegladanieOfert extends Simulation {
       http("Sprawdz oferty (str. 1)").get("/lista-obiektow")
       .check(
         status.not(404),
-        css("option+option", "value").findAll.saveAs("wojewodztwa")
+        css("option+option", "value").findAll.saveAs("wojewodztwa"),
+        css("input[name='c[]']").findAll.saveAs("uslugi")
       )
     )
   	.pause(15, 30)
@@ -44,7 +40,7 @@ class PrzegladanieOfert extends Simulation {
       .queryParam("s", "")
       .queryParam("r", "${wojewodztwa.random()}")
       .queryParam("m", "")
-      .queryParam("c[]", randomService())
+      .queryParam("c[]", "${uslugi.random()}")
       .check(css("div.ob-list h3 > a", "href")
       .findAll
       .optional
