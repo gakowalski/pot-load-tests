@@ -18,7 +18,7 @@ class PrzegladanieOfert extends Simulation {
     .enableHttp2
 
   val czytajRegulamin = exec(http("Regulamin").get("/REGULAMIN-wiosna-2019.pdf").check(status.not(404))).pause(1, 20)
-  var czytajInformacje = exec(http("Informacje").get("/informacje").check(status.not(404))).pause(1, 10)
+  val czytajInformacje = exec(http("Informacje").get("/informacje").check(status.not(404))).pause(1, 10)
 
   val uwaznyInternauta = randomSwitch(
     	10d -> exec(czytajRegulamin).exec(czytajInformacje),
